@@ -42,12 +42,35 @@ public class HDFSUpload
         	return;
     	}
     	String str_local_file=args[1];
-    	String hdfs_path=args[2];
+    	String str_hdfs_path=args[2];
 
+    	//check if the local file exists
     	File localFile= new File(str_local_file);
 		if(!localFile.exists()){
 			System.out.println("The local file you entered does not exist. Exiting.");
+			return;
 		}
+
+		
+		Configuration con= new Configuration();
+		con.set("fs.default.name", str_hdfs_path);
+		try{
+			FileSystem fs = FileSystem.get(con);
+			fs.initialize(new URI("URI to HDFS"), new Configuration());
+		}
+		catch(IOException e){
+			System.out.println("here");
+			e.printStackTrace();
+		}
+		Path hdfsPath = new Path(str_hdfs_path);
+
+		//check if the file in hdfs exists already
+	    if(fs.exists(hdfsPath)) {
+	      System.out.println("The hdfs file path you entered already exists. Exiting.");
+	      return;
+		}
+
+
 
     }
 }
