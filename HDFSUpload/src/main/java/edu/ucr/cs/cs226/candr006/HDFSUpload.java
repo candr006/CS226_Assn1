@@ -4,7 +4,7 @@ package edu.ucr.cs.cs226.candr006;
  * Hello world!
  *
  */
-public class App 
+public class HDFSUpload 
 {
     public static void main( String[] args )
     {
