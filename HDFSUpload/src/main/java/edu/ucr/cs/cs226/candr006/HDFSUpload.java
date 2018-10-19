@@ -5,6 +5,7 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.ftp.FTPFileSystem;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -15,7 +16,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-//import org.apache.hadoop.hdfs.LocalFileSystem;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -37,8 +39,7 @@ import java.io.OutputStream;
 public class HDFSUpload 
 {
 
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) throws IOException, URISyntaxException {
     	if(args.length<3){
         	System.out.println("You are missing one or more arguments. Exiting.");
         	return;
@@ -55,23 +56,24 @@ public class HDFSUpload
 
 		
 		Configuration con= new Configuration();
+		//conf.get("fs.default.name")
+		con.set("fs.default.name", "hdfs://localhost:9000");
 		try{
-			FileSystem fs = FileSystem.get(con);
+			FileSystem fs2 = FileSystem.get(con);
 		}
 		catch(IOException e){
 			e.printStackTrace();
 
 		}
-
+		FileSystem fs = null;
+		fs.initialize(new URI("hdfs://localhost:9000"), con);
 		Path hdfsPath = new Path(str_hdfs_path);
 
 		//check if the file in hdfs exists already
 	    if(fs.exists(hdfsPath)) {
-		//if(true){
 	      System.out.println("The hdfs file path you entered already exists. Exiting.");
 	      return;
 		}
-
 
 
     }
