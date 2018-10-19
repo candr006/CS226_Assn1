@@ -41,7 +41,7 @@ public class HDFSUpload
 
     public static void main( String[] args ) throws IOException, URISyntaxException {
     	if(args.length<3){
-        	System.out.println("You are missing one or more arguments. Exiting.");
+        	System.out.println("\n\nERROR: You are missing one or more arguments. Exiting.\n");
         	return;
     	}
     	String str_local_file=args[1];
@@ -50,30 +50,22 @@ public class HDFSUpload
     	//check if the local file exists
     	File localFile= new File(str_local_file);
 		if(!localFile.exists()){
-			System.out.println("The local file you entered does not exist. Exiting.");
+			System.out.println("\n\nERROR: The local file you entered does not exist. Exiting.\n");
 			return;
 		}
 
 		
 		Configuration con= new Configuration();
-		//conf.get("fs.default.name")
-		con.set("fs.default.name", "hdfs://localhost:9000");
-		try{
-			FileSystem fs2 = FileSystem.get(con);
-		}
-		catch(IOException e){
-			e.printStackTrace();
-
-		}
-		FileSystem fs = null;
-		fs.initialize(new URI("hdfs://localhost:9000"), con);
+		FileSystem fs = FileSystem.get(con);
 		Path hdfsPath = new Path(str_hdfs_path);
 
 		//check if the file in hdfs exists already
 	    if(fs.exists(hdfsPath)) {
-	      System.out.println("The hdfs file path you entered already exists. Exiting.");
+	      System.out.println("\n\nERROR: The hdfs file path you entered already exists. Exiting.\n");
 	      return;
-		}
+		}else{
+	        System.out.println("\nFile doesn't exist!\n");
+        }
 
 
     }
