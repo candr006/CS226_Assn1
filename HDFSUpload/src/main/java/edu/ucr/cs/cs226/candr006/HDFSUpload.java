@@ -14,6 +14,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
+//import org.apache.hadoop.hdfs.LocalFileSystem;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -53,19 +55,19 @@ public class HDFSUpload
 
 		
 		Configuration con= new Configuration();
-		con.set("fs.default.name", str_hdfs_path);
 		try{
 			FileSystem fs = FileSystem.get(con);
-			fs.initialize(new URI("URI to HDFS"), new Configuration());
 		}
 		catch(IOException e){
-			System.out.println("here");
 			e.printStackTrace();
+
 		}
+
 		Path hdfsPath = new Path(str_hdfs_path);
 
 		//check if the file in hdfs exists already
 	    if(fs.exists(hdfsPath)) {
+		//if(true){
 	      System.out.println("The hdfs file path you entered already exists. Exiting.");
 	      return;
 		}
