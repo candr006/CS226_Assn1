@@ -16,6 +16,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.commons.compress.compressors.CompressorInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
@@ -67,6 +68,15 @@ public class HDFSUpload
 	        System.out.println("\nFile doesn't exist! Let's create it in HDFS\n");
         }
 
+        /*BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(in);
+        final byte[] buffer = new byte[buffersize];
+        int n = 0;
+        while (-1 != (n = bzIn.read(buffer))) {
+            out.write(buffer, 0, n);
+        }
+        out.close();
+        bzIn.close();*/
+
 
         //Open the local file to read from and copy to hdfs location
         FSDataOutputStream ostream = fs.create(hdfsPath);
@@ -80,6 +90,14 @@ public class HDFSUpload
 
         ostream.close();
         istream.close();
+
+
+
+
+
+
+
+
         fs.close();
 
 
