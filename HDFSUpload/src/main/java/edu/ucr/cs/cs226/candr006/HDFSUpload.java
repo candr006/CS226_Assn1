@@ -61,11 +61,26 @@ public class HDFSUpload
 
 		//check if the file in hdfs exists already
 	    if(fs.exists(hdfsPath)) {
-	      System.out.println("\n\nERROR: The hdfs file path you entered already exists. Exiting.\n");
+	      System.out.println("\n\nERROR: The hdfs path you entered already exists. Exiting.\n");
 	      return;
 		}else{
-	        System.out.println("\nFile doesn't exist!\n");
+	        System.out.println("\nFile doesn't exist! Let's create it in HDFS\n");
         }
+
+
+        //Open the local file to read from and copy to hdfs location
+        FSDataOutputStream ostream = fs.create(hdfsPath);
+        InputStream istream = new BufferedInputStream(new FileInputStream(localFile));
+
+        byte[] byte_to_read = new byte[1024];
+        int int_bytes = 0;
+        while ((int_bytes = istream.read(byte_to_read)) > 0) {
+            ostream.write(byte_to_read,0,int_bytes);
+        }
+
+        ostream.close();
+        istream.close();
+        fs.close();
 
 
     }
