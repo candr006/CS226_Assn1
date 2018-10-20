@@ -1,8 +1,9 @@
 package edu.ucr.cs.cs226.candr006;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.StringTokenizer;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.ftp.FTPFileSystem;
@@ -22,15 +23,9 @@ import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.io.compress.BZip2Codec;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 
 /**
@@ -68,18 +63,22 @@ public class HDFSUpload
 	        System.out.println("\nFile doesn't exist! Let's create it in HDFS\n");
         }
 
-        /*BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(in);
-        final byte[] buffer = new byte[buffersize];
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		FileInputStream is = new FileInputStream(localFile);
+
+		BZip2CompressorInputStream inputStream = new BZip2CompressorInputStream(is);
+		FileOutputStream os = new FileOutputStream(localFile.getAbsolutePath());
+        final byte[] buffer = new byte[8192];
         int n = 0;
-        while (-1 != (n = bzIn.read(buffer))) {
+        while ((n = inputStream.read(buffer))>0) {
             out.write(buffer, 0, n);
         }
         out.close();
-        bzIn.close();*/
+        inputStream.close();
 
 
         //Open the local file to read from and copy to hdfs location
-        FSDataOutputStream ostream = fs.create(hdfsPath);
+        /*FSDataOutputStream ostream = fs.create(hdfsPath);
         InputStream istream = new BufferedInputStream(new FileInputStream(localFile));
 
         byte[] byte_to_read = new byte[1024];
@@ -89,7 +88,7 @@ public class HDFSUpload
         }
 
         ostream.close();
-        istream.close();
+        istream.close();*/
 
 
 
