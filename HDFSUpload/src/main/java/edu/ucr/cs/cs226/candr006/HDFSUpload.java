@@ -64,11 +64,11 @@ public class HDFSUpload
 	      System.out.println("\n\nERROR: The hdfs path you entered already exists. Exiting.\n");
 	      return;
 		}else{
-	        System.out.println("\nNOTE: Creating file in HDFS. Please wait...\n");
+	        System.out.println("\nNOTE: Creating file in HDFS. This may take a few moments. Please wait...\n");
         }
 
 
-        //Copy file
+        //Copy file from local to hdfs
 		long startTime = System.nanoTime();
 		java.nio.file.Path local_file_path = Paths.get(str_local_file);
 		InputStream is = new BufferedInputStream(new FileInputStream(localFile));
@@ -89,21 +89,19 @@ public class HDFSUpload
 
 		//Read the file we just copied to hdfs from start to finish
 		long startTime2 = System.nanoTime();
-		Configuration con2= new Configuration();
-		FileSystem fs2 = FileSystem.get(con2);
-		Path hdfsPath2 = new Path(str_hdfs_path);
-		InputStream in2 = null;
-		OutputStream out2=null;
-		try {
-			in2 = fs.open(hdfsPath2);
-			IOUtils.copyBytes(in2,out2, 4096, false);
-		} finally {
-			IOUtils.closeStream(in2);
+		InputStream in2 = new BufferedInputStream(new FileInputStream(str_hdfs_path));
+		byte[] byte_to_read = new byte[8192];
+		int int_bytes = 0;
+		ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+		while ((int_bytes = in2.read(byte_to_read)) > 0) {
+			out2.write( byte_to_read, 0, int_bytes );
+			out2.reset();
 		}
 		in2.close();
+		out2.close();
 		long estimatedTime2 = System.nanoTime() - startTime2;
 		double seconds2=estimatedTime2/ 1000000000.0;
-		System.out.println("Seconds it takes to read the HDFS file: "+seconds);
+		System.out.println("Seconds it takes to read the HDFS file: "+seconds2);
 
 
 
