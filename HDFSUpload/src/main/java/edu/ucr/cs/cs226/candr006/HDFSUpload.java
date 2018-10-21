@@ -4,12 +4,14 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.StringTokenizer;
 
+import net.minidev.json.JSONObject;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.ftp.FTPFileSystem;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -17,15 +19,13 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.compress.BZip2Codec;
+import org.codehaus.jettison.json.JSONException;
 
 import java.io.IOException;
 
@@ -105,24 +105,25 @@ public class HDFSUpload
 
 
 
-        //Open the local file to read from and copy to hdfs location
-        /*FSDataOutputStream ostream = fs.create(hdfsPath);
-        InputStream istream = new BufferedInputStream(new FileInputStream(localFile));
+		//2000 random seeks of 1KB
+		long startTime3 = System.nanoTime();
+		InputStream in3= new BufferedInputStream((new FileInputStream(str_hdfs_path)));
+		int i=2000;
+		int byte_offset=0;
+		byte[] byte_to_read2 = new byte[8192];
+		while (i>0) {
+			//byte offset is a random value from 0 to 2e9 (2GB)
+			byte_offset = (int) (Math.random() * ((2 * (10 ^ 9)) + 1));
+			in3.read(byte_to_read, byte_offset, 1000);
+			i--;
+		}
+		in3.close();
+		long estimatedTime3 = System.nanoTime() - startTime3;
+		double seconds3=estimatedTime3/ 1000000000.0;
+		System.out.println("Seconds it takes to do 2000 random seeks of 1KB: "+seconds3);
 
-        byte[] byte_to_read = new byte[1024];
-        int int_bytes = 0;
-        while ((int_bytes = istream.read(byte_to_read)) > 0) {
-            ostream.write(byte_to_read,0,int_bytes);
-        }
 
-        ostream.close();
-        istream.close();*/
-
-
-
-
-
-
+		
 
 
         fs.close();
