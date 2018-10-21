@@ -67,8 +67,9 @@ public class HDFSUpload
 	      System.out.println("\n\nERROR: The hdfs path you entered already exists. Exiting.\n");
 	      return;
 		}else{
-	        System.out.println("\nNOTE: Creating file in HDFS. This may take a few moments. Please wait...\n");
+	        System.out.println("\nNOTE: Program is running. This may take a few moments. Please wait...\n");
         }
+        fs.close();
 
 
         //Copy file from local to hdfs. Decompresses .bzip2 file at the same time
@@ -111,21 +112,47 @@ public class HDFSUpload
 
 		//2000 random seeks of 1KB
 		long startTime3 = System.nanoTime();
-		InputStream in3= new BufferedInputStream((new FileInputStream(str_hdfs_path)));
 		int i=2000;
 		int byte_offset=0;
-		byte[] byte_to_read2 = new byte[8192];
-		while (i>0) {
-			//byte offset is a random value from 0 to 2e9 (2GB)
-			int min=0;
-			int max=((2 * (10*10*10*10*10*10*10*10*10)))-1000;
-			Random rnum = new Random();
-			byte_offset = rnum.nextInt((max - min) + 1) + min;
-			System.out.println(byte_offset);
-			in3.read(byte_to_read2, byte_offset, 1000);
-			i--;
+
+		int min=0;
+		//2GB position max
+		int max= (int) (fs.getFileStatus(hdfsPath).getLen());
+		if(max<0){
+			max=(-1)*max;
 		}
-		in3.close();
+		int byte_to_read2 = 1000;
+		File hdfsFile=new File(str_hdfs_path);
+
+		System.out.println("MAX: "+max);
+		while (i>0) {
+
+
+			Random rnum = new Random();
+			//byte offset is a random value from 0 to 2e9 (2GB)
+			byte_offset = rnum.nextInt((max - min) + 1) + min;
+			RandomAccessFile raf = new RandomAccessFile(hdfsFile,"r");
+			raf.seek(byte_offset);
+			byte[] bytes = new byte[1000];
+			raf.read(bytes);
+			System.out.println("Read bytes: "+bytes);
+			raf.close();
+			i--;
+
+			/*
+			fs = FileSystem.get(con);
+			FileInputStream fis=new FileInputStream(str_hdfs_path);
+			InputStream in3= new BufferedInputStream(fis);
+
+			//byte_offset=byte_offset/10000;
+			System.out.println(byte_offset);
+			in3.read(byte_to_read2, (byte_offset/1000), 1000);
+			i--;
+			in3.reset();
+			in3.close();
+			fs.close();*/
+		}
+
 		long estimatedTime3 = System.nanoTime() - startTime3;
 		double seconds3=estimatedTime3/ 1000000000.0;
 		System.out.println("Seconds it takes to do 2000 random seeks of 1KB: "+seconds3);
