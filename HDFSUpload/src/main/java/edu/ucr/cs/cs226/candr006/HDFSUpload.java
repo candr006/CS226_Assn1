@@ -1,6 +1,7 @@
 package edu.ucr.cs.cs226.candr006;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.StringTokenizer;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -26,6 +27,8 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.compress.BZip2Codec;
 
 import java.io.IOException;
+
+import static java.nio.file.Files.probeContentType;
 
 
 /**
@@ -60,20 +63,22 @@ public class HDFSUpload
 	      System.out.println("\n\nERROR: The hdfs path you entered already exists. Exiting.\n");
 	      return;
 		}else{
-	        System.out.println("\nFile doesn't exist! Let's create it in HDFS\n");
+	        System.out.println("\nNOTE: Creating file in HDFS. Please wait...\n");
         }
 
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		FileInputStream is = new FileInputStream(localFile);
 
-		BZip2CompressorInputStream inputStream = new BZip2CompressorInputStream(is);
-		FileOutputStream os = new FileOutputStream(localFile.getAbsolutePath());
+		java.nio.file.Path local_file_path = Paths.get(str_local_file);
+		InputStream is = new BufferedInputStream(new FileInputStream(localFile));
+		BZip2CompressorInputStream inputStream = new BZip2CompressorInputStream(is, true);
+
+
+		FSDataOutputStream ostream = fs.create(hdfsPath);
         final byte[] buffer = new byte[8192];
         int n = 0;
         while ((n = inputStream.read(buffer))>0) {
-            out.write(buffer, 0, n);
+            ostream.write(buffer, 0, n);
         }
-        out.close();
+        ostream.close();
         inputStream.close();
 
 
