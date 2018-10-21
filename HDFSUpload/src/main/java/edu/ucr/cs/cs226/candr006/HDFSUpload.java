@@ -2,6 +2,7 @@ package edu.ucr.cs.cs226.candr006;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import net.minidev.json.JSONObject;
@@ -116,8 +117,12 @@ public class HDFSUpload
 		byte[] byte_to_read2 = new byte[8192];
 		while (i>0) {
 			//byte offset is a random value from 0 to 2e9 (2GB)
-			byte_offset = (int) (Math.random() * ((2 * (10 ^ 9)) + 1));
-			in3.read(byte_to_read, byte_offset, 1000);
+			int min=0;
+			int max=((2 * (10*10*10*10*10*10*10*10*10)))-1000;
+			Random rnum = new Random();
+			byte_offset = rnum.nextInt((max - min) + 1) + min;
+			System.out.println(byte_offset);
+			in3.read(byte_to_read2, byte_offset, 1000);
 			i--;
 		}
 		in3.close();
