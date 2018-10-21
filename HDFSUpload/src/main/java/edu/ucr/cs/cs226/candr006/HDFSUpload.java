@@ -41,7 +41,9 @@ public class HDFSUpload
 
     public static void main( String[] args ) throws IOException, URISyntaxException {
     	if(args.length<3){
-        	System.out.println("\n\nERROR: You are missing one or more arguments. Exiting.\n");
+        	System.out.println("\n\nERROR: You are missing one or more arguments.");
+			System.out.println("<local file path> <hdfs path>");
+			System.out.println("Exiting");
         	return;
     	}
     	String str_local_file=args[1];
@@ -68,7 +70,8 @@ public class HDFSUpload
         }
 
 
-        //Copy file from local to hdfs
+        //Copy file from local to hdfs. Decompresses .bzip2 file at the same time
+		//NOTE: local file is assumed to be a .bzip2 file. This program will not handle other local file types.
 		long startTime = System.nanoTime();
 		java.nio.file.Path local_file_path = Paths.get(str_local_file);
 		InputStream is = new BufferedInputStream(new FileInputStream(localFile));
@@ -123,7 +126,7 @@ public class HDFSUpload
 		System.out.println("Seconds it takes to do 2000 random seeks of 1KB: "+seconds3);
 
 
-		
+
 
 
         fs.close();
