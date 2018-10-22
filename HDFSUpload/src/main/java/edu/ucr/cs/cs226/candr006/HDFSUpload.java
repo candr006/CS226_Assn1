@@ -193,18 +193,20 @@ public class HDFSUpload
 		}
 		int byte_to_read2 = 1000;
 		File hdfsFile=new File(str_hdfs_path);
+		FSDataInputStream in3 = fs.open(hdfsPath);
 
 		while (i>0) {
 			Random rnum = new Random();
 			//byte offset is a random value from 0 to 2e9 (2GB)
 			byte_offset = rnum.nextInt((max - min) + 1) + min;
-			RandomAccessFile raf = new RandomAccessFile(hdfsFile,"r");
-			raf.seek(byte_offset);
+
 			byte[] bytes = new byte[1000];
-			raf.read(bytes);
-			raf.close();
+			in3.seek(byte_offset);
+			in3.read(byte_offset,bytes,0, 1000);
 			i--;
 		}
+		in3.close();
+		fs.close();
 
 		long estimatedTime3 = System.nanoTime() - startTime3;
 		double seconds3=estimatedTime3/ 1000000000.0;
