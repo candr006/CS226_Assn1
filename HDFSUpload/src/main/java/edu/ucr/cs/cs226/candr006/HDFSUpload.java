@@ -92,6 +92,8 @@ public class HDFSUpload
 		System.out.println("1. Seconds it takes to copy the local file to local file: "+seconds4);
 
 
+
+		
         //-------------Copy file from local to hdfs. Decompresses .bzip2 file at the same time----------
 		//NOTE: local file is assumed to be a .bzip2 file. This program will not handle other local file types.
 		long startTime = System.nanoTime();
@@ -111,6 +113,8 @@ public class HDFSUpload
 		System.out.println("2. Seconds it takes to copy the local file to hdfs: "+seconds);
 
 
+
+
 		//---------------Read the local copy we created above from start to finish-------------
 		long startTime5 = System.nanoTime();
 		InputStream in5 = new BufferedInputStream(new FileInputStream("local_copy.csv"));
@@ -128,6 +132,8 @@ public class HDFSUpload
 		System.out.println("3. Seconds it takes to read the Local copy: "+seconds5);
 
 
+
+
 		//--------------Read the file we just copied to hdfs from start to finish-------------
 		long startTime2 = System.nanoTime();
 		//InputStream in2 = new BufferedInputStream(new FileInputStream(str_hdfs_path));
@@ -143,6 +149,7 @@ public class HDFSUpload
 		long estimatedTime2 = System.nanoTime() - startTime2;
 		double seconds2=estimatedTime2/ 1000000000.0;
 		System.out.println("4. Seconds it takes to read the HDFS file: "+seconds2);
+
 
 
 
