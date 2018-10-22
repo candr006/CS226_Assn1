@@ -72,7 +72,27 @@ public class HDFSUpload
         fs.close();
 
 
-        //Copy file from local to hdfs. Decompresses .bzip2 file at the same time
+		//--------------Copy file from local to local. Decompresses .bzip2 file at the same time--------------
+		//NOTE: local file is assumed to be a .bzip2 file. This program will not handle other local file types.
+		long startTime4 = System.nanoTime();
+		//java.nio.file.Path local_file_path4 = Paths.get(str_local_file);
+		FileInputStream is4 = new FileInputStream(localFile);
+		//InputStream is = new BufferedInputStream(new FileInputStream(localFile));
+		BZip2CompressorInputStream inputStream4 = new BZip2CompressorInputStream(is4, true);
+		OutputStream ostream4 = new FileOutputStream("local_copy.csv");
+		final byte[] buffer4 = new byte[8192];
+		int n4 = 0;
+		while ((n4 = inputStream4.read(buffer4))>0) {
+			ostream4.write(buffer4, 0, n4);
+		}
+		ostream4.close();
+		inputStream4.close();
+		long estimatedTime4 = System.nanoTime() - startTime4;
+		double seconds4=estimatedTime4/ 1000000000.0;
+		System.out.println("Seconds it takes to copy the local file to local file: "+seconds4);
+
+
+        //-------------Copy file from local to hdfs. Decompresses .bzip2 file at the same time----------
 		//NOTE: local file is assumed to be a .bzip2 file. This program will not handle other local file types.
 		long startTime = System.nanoTime();
 		java.nio.file.Path local_file_path = Paths.get(str_local_file);
@@ -91,8 +111,24 @@ public class HDFSUpload
 		System.out.println("Seconds it takes to copy the local file to hdfs: "+seconds);
 
 
+		//---------------Read the local copy we created above from start to finish-------------
+		long startTime5 = System.nanoTime();
+		InputStream in5 = new BufferedInputStream(new FileInputStream("local_copy.csv"));
+		byte[] byte_to_read5 = new byte[8195];
+		int int_bytes5 = 0;
+		ByteArrayOutputStream out5 = new ByteArrayOutputStream();
+		while ((int_bytes5 = in5.read(byte_to_read5)) > 0) {
+			out5.write( byte_to_read5, 0, int_bytes5 );
+			out5.reset();
+		}
+		in5.close();
+		out5.close();
+		long estimatedTime5 = System.nanoTime() - startTime5;
+		double seconds5=estimatedTime5/ 1000000000.0;
+		System.out.println("Seconds it takes to read the Local copy: "+seconds5);
 
-		//Read the file we just copied to hdfs from start to finish
+
+		//--------------Read the file we just copied to hdfs from start to finish-------------
 		long startTime2 = System.nanoTime();
 		InputStream in2 = new BufferedInputStream(new FileInputStream(str_hdfs_path));
 		byte[] byte_to_read = new byte[8192];
@@ -110,7 +146,41 @@ public class HDFSUpload
 
 
 
-		//2000 random seeks of 1KB
+		//----------------Local copy: 2000 random seeks of 1KB----------------------
+		long startTime6 = System.nanoTime();
+		int i6=2000;
+		int byte_offset6=0;
+
+		int min6=0;
+		//2GB position max
+		File localCopyFile=new File("local_copy.csv");
+		Path localCopyPath=new Path("local_copy.csv");
+		int max6= (int) (fs.getFileStatus(localCopyPath).getLen());
+		if(max6<0){
+			max6=(-1)*max6;
+		}
+
+		while (i6>0) {
+			Random rnum = new Random();
+			//byte offset is a random value from 0 to 2e9 (2GB)
+			byte_offset6 = rnum.nextInt((max6 - min6) + 1) + min6;
+			RandomAccessFile raf = new RandomAccessFile(localCopyFile,"r");
+			raf.seek(byte_offset6);
+			byte[] bytes = new byte[1000];
+			raf.read(bytes);
+			raf.close();
+			i6--;
+		}
+
+		long estimatedTime6 = System.nanoTime() - startTime6;
+		double seconds6=estimatedTime6/ 1000000000.0;
+		System.out.println("Seconds it takes to do 2000 random seeks of 1KB (Local Copy): "+seconds6);
+
+
+
+
+
+		//-------------------HDFS Copy: 2000 random seeks of 1KB----------------------
 		long startTime3 = System.nanoTime();
 		int i=2000;
 		int byte_offset=0;
@@ -124,10 +194,7 @@ public class HDFSUpload
 		int byte_to_read2 = 1000;
 		File hdfsFile=new File(str_hdfs_path);
 
-		System.out.println("MAX: "+max);
 		while (i>0) {
-
-
 			Random rnum = new Random();
 			//byte offset is a random value from 0 to 2e9 (2GB)
 			byte_offset = rnum.nextInt((max - min) + 1) + min;
@@ -135,27 +202,13 @@ public class HDFSUpload
 			raf.seek(byte_offset);
 			byte[] bytes = new byte[1000];
 			raf.read(bytes);
-			System.out.println("Read bytes: "+bytes);
 			raf.close();
 			i--;
-
-			/*
-			fs = FileSystem.get(con);
-			FileInputStream fis=new FileInputStream(str_hdfs_path);
-			InputStream in3= new BufferedInputStream(fis);
-
-			//byte_offset=byte_offset/10000;
-			System.out.println(byte_offset);
-			in3.read(byte_to_read2, (byte_offset/1000), 1000);
-			i--;
-			in3.reset();
-			in3.close();
-			fs.close();*/
 		}
 
 		long estimatedTime3 = System.nanoTime() - startTime3;
 		double seconds3=estimatedTime3/ 1000000000.0;
-		System.out.println("Seconds it takes to do 2000 random seeks of 1KB: "+seconds3);
+		System.out.println("Seconds it takes to do 2000 random seeks of 1KB (HDFS Copy): "+seconds3);
 
 
 
