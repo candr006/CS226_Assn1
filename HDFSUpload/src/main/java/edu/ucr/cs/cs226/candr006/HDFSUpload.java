@@ -89,7 +89,7 @@ public class HDFSUpload
 		inputStream4.close();
 		long estimatedTime4 = System.nanoTime() - startTime4;
 		double seconds4=estimatedTime4/ 1000000000.0;
-		System.out.println("Seconds it takes to copy the local file to local file: "+seconds4);
+		System.out.println("1. Seconds it takes to copy the local file to local file: "+seconds4);
 
 
         //-------------Copy file from local to hdfs. Decompresses .bzip2 file at the same time----------
@@ -108,7 +108,7 @@ public class HDFSUpload
         inputStream.close();
 		long estimatedTime = System.nanoTime() - startTime;
 		double seconds=estimatedTime/ 1000000000.0;
-		System.out.println("Seconds it takes to copy the local file to hdfs: "+seconds);
+		System.out.println("2. Seconds it takes to copy the local file to hdfs: "+seconds);
 
 
 		//---------------Read the local copy we created above from start to finish-------------
@@ -125,24 +125,24 @@ public class HDFSUpload
 		out5.close();
 		long estimatedTime5 = System.nanoTime() - startTime5;
 		double seconds5=estimatedTime5/ 1000000000.0;
-		System.out.println("Seconds it takes to read the Local copy: "+seconds5);
+		System.out.println("3. Seconds it takes to read the Local copy: "+seconds5);
 
 
 		//--------------Read the file we just copied to hdfs from start to finish-------------
 		long startTime2 = System.nanoTime();
-		InputStream in2 = new BufferedInputStream(new FileInputStream(str_hdfs_path));
-		byte[] byte_to_read = new byte[8192];
-		int int_bytes = 0;
-		ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-		while ((int_bytes = in2.read(byte_to_read)) > 0) {
-			out2.write( byte_to_read, 0, int_bytes );
-			out2.reset();
+		//InputStream in2 = new BufferedInputStream(new FileInputStream(str_hdfs_path));
+		FSDataInputStream in2 = fs.open(hdfsPath);
+		BufferedReader buffer2=new BufferedReader(new InputStreamReader(in2));
+		String out2= null;
+		while ((out2=buffer2.readLine())!=null){
+			//loop
 		}
+
 		in2.close();
-		out2.close();
+		fs.close();
 		long estimatedTime2 = System.nanoTime() - startTime2;
 		double seconds2=estimatedTime2/ 1000000000.0;
-		System.out.println("Seconds it takes to read the HDFS file: "+seconds2);
+		System.out.println("4. Seconds it takes to read the HDFS file: "+seconds2);
 
 
 
@@ -174,7 +174,7 @@ public class HDFSUpload
 
 		long estimatedTime6 = System.nanoTime() - startTime6;
 		double seconds6=estimatedTime6/ 1000000000.0;
-		System.out.println("Seconds it takes to do 2000 random seeks of 1KB (Local Copy): "+seconds6);
+		System.out.println("5. Seconds it takes to do 2000 random seeks of 1KB (Local Copy): "+seconds6);
 
 
 
@@ -208,7 +208,7 @@ public class HDFSUpload
 
 		long estimatedTime3 = System.nanoTime() - startTime3;
 		double seconds3=estimatedTime3/ 1000000000.0;
-		System.out.println("Seconds it takes to do 2000 random seeks of 1KB (HDFS Copy): "+seconds3);
+		System.out.println("6. Seconds it takes to do 2000 random seeks of 1KB (HDFS Copy): "+seconds3);
 
 
 
